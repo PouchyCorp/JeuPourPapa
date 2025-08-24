@@ -1,10 +1,12 @@
 from pygame import Surface, SRCALPHA, image, error, transform
 
-def load_image(path, scale = 1) -> Surface:
+def load_image(path, scale = 1, size = None) -> Surface:
     try:
         img = image.load(path).convert_alpha()
         if scale != 1:
             img = transform.scale_by(img, scale)
+        if size is not None:
+            img = transform.scale(img, size)
         return img
     except error as e:
         print(f"Cannot load image: {path}")

@@ -1,113 +1,87 @@
 import pygame as pg
 from puzzlepiece import PuzzlePiece
 
-class GenericQuiz:
-    """
-    A generic, configurable minigame that can be customized for different puzzle pieces.
-    """
-    
-    def __init__(self, linked_puzzle_piece: PuzzlePiece, question: str = "Répond à la question !"):
-        self.linked_puzzle_piece = linked_puzzle_piece
-        self.is_active = False
-        self.is_completed = False
-        self.question = question
-        self.button_configurations = []
-        self.win_condition_func = None
-        self.custom_draw_func = None
-        self.custom_update_func = None
-        self.custom_event_handler = None
-        
-    def add_button_config(self, rect: pg.Rect, text: str = '', action = None, 
-                         text_color: tuple = (0, 0, 0), font_size: int = 30):
-        """Add a button configuration to be created during setup."""
-        self.button_configurations.append({
-            'rect': rect,
-            'text': text,
-            'action': action,
-            'text_color': text_color,
-            'font_size': font_size
-        })
-    
-    def set_win_condition(self, condition_func):
-        """Set the win condition function."""
-        self.win_condition_func = condition_func
-    
-    def set_custom_draw(self, draw_func):
-        """Set a custom drawing function."""
-        self.custom_draw_func = draw_func
-    
-    def set_custom_update(self, update_func):
-        """Set a custom update function."""
-        self.custom_update_func = update_func
 
-    def set_custom_event_handler(self, event_handler):
-        """Set a custom event handler."""
-        self.custom_event_handler = event_handler
-    
+class GenericQuiz:
+    def __init__(self, right_answer, possible_answers, correct_index, question: str = "Répond à la question !"):
+        self.boundary = None  # Will be set by PuzzleManager
+        self.completed = False  # Changed from is_completed to match PuzzleManager expectations
+        self.question = question
+        self.right_answer = right_answer
+        self.possible_answers = possible_answers
+        self.correct_index = correct_index
+        self.buttons = []
+        self.name = "Quiz"  # Add name attribute for PuzzleManager compatibility
+
     def setup(self):
-        """Initialize the minigame with configured buttons and settings."""
+        if not self.boundary:
+            return  # Can't setup without boundary
+            
         from puzzlemanager import Button  # Import here to avoid circular imports
-        
-        # Create buttons from configurations
-        self.buttons : list[Button] = []
-        for config in self.button_configurations:
+        from globalSurfaces import BUTTON_UP
+
+        self.buttons: list[Button] = []
+        num_answers = len(self.possible_answers)
+        button_width = BUTTON_UP.get_width()
+        button_height = BUTTON_UP.get_height()
+        spacing = 40
+
+        total_width = num_answers * button_width + (num_answers - 1) * spacing
+        start_x = self.boundary.centerx - total_width // 2
+        y = self.boundary.bottom - button_height - 40  # 40px margin from bottom
+
+        for i, answer in enumerate(self.possible_answers):
+            rect = pg.Rect(
+                start_x + i * (button_width + spacing),
+                y,
+                button_width,
+                button_height
+            )
             button = Button(
-                config['rect'],
-                config['text'],
-                config['text_color'],
-                config['font_size']
+                rect,
+                answer,
+                (255, 255, 255),  # white text
+                36  # font size
             )
             self.buttons.append(button)
     
-    def check_win_condition(self) -> bool:
-        """Check if the win condition has been met."""
-        if self.win_condition_func:
-            return self.win_condition_func()
-        return False
-    
     def update(self):
-        """Update the minigame logic each frame."""
-        if not self.is_active or self.is_completed:
+        if self.completed:
             return
+        
+        # Setup buttons if not already done
+        if not self.buttons and self.boundary:
+            self.setup()
         
         # Check win condition
-        if self.check_win_condition():
-            self.complete_minigame()
-            return
-        
-        # Run custom update function if provided
-        if self.custom_update_func:
-            self.custom_update_func()
+        for button in self.buttons:
+            if button.state == 'DOWN' and button.text == self.right_answer:
+                self.completed = True
         
         # Update buttons
         for button in self.buttons:
-            # Reset button states if needed (you might want to customize this)
             if button.state == 'DOWN':
-                button.reset()
-    
+                pg.time.set_timer(pg.USEREVENT + 1, 1000)  # Reset all buttons after 1000ms
+                break
+
     def draw(self, surface: pg.Surface):
-        """Draw the minigame elements to the surface."""
-        if not self.is_active:
+        if self.completed:
             return
+        
+        # Draw the question text
+        font = pg.font.SysFont("Arial", 48)
+        question_surf = font.render(self.question, True, (255, 255, 255))
+        question_rect = question_surf.get_rect(center=(surface.get_width() // 2, 200))
+        surface.blit(question_surf, question_rect)
         
         # Draw buttons
         for button in self.buttons:
             button.draw(surface)
-        
-        # Run custom draw function if provided
-        if self.custom_draw_func:
-            self.custom_draw_func(surface)
     
     def handle_event(self, event: pg.event.Event):
-        """Handle input events for the minigame."""
-        if not self.is_active or self.is_completed:
+        if self.completed:
             return
         
         # Handle button events
         for button in self.buttons:
-            if button.is_clicked(event):
-                button.handle_event(event)
-        
-        # Run custom event handler if provided
-        if self.custom_event_handler:
-            self.custom_event_handler(event)
+            button.handle_event(event)

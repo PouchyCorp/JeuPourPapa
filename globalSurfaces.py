@@ -3,7 +3,7 @@ import sprite
 # this file is used to store global surfaces that are used in multiple files
 
 
-LEVELS = [sprite.load_image("assets/images/placeholderFamille.png")]
+LEVELS_SPRITES = [sprite.load_image("assets/images/placeholderFamille.png", size=(1100, 1100))]
 
 PUZZLE_PIECE = sprite.load_image("assets/images/puzzlepiece.png", 1.1)
 BUTTON_UP = sprite.load_image("assets/images/buttonUp.png", 0.5)

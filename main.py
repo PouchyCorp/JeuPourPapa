@@ -7,25 +7,34 @@ class Game:
         self.player = Player(400, 300)
         self.level = 0
         self.running = True
+        self.origin = (410, 0)
         
         # Initialize starfield background
         from starfield import Starfield
         self.starfield = Starfield(self.screen.get_width(), self.screen.get_height(), num_stars=120)
     
-    def init_level(self, level):
-        self.background = LEVELS[level]
-        origin = (410, 0)
+    def init_level(self, level_ind : int):
+        self.background = LEVELS[level_ind].background
         side_without_bitoniau = 550
         bitoniau = 88
         piece_size = (side_without_bitoniau, side_without_bitoniau)
         self.puzzle_pieces = [
-            (PuzzlePiece(*origin, [55, 0, 0], rotation=0), pg.Rect(origin, piece_size)),
-            (PuzzlePiece(origin[0] + side_without_bitoniau, origin[1], [0, 55, 0], rotation=270), pg.Rect((origin[0] + side_without_bitoniau, origin[1]), piece_size)),
-            (PuzzlePiece(origin[0], origin[1] + side_without_bitoniau - bitoniau, [0, 0, 55], rotation=90), pg.Rect((origin[0], origin[1] + side_without_bitoniau), piece_size)),
-            (PuzzlePiece(origin[0] + side_without_bitoniau - bitoniau, origin[1] + side_without_bitoniau, [55, 55, 0], rotation=180), pg.Rect((origin[0] + side_without_bitoniau, origin[1] + side_without_bitoniau), piece_size))
+            (PuzzlePiece(*self.origin, [55, 0, 0], rotation=0), pg.Rect(self.origin, piece_size)),
+            (PuzzlePiece(self.origin[0] + side_without_bitoniau, self.origin[1], [0, 55, 0], rotation=270), pg.Rect((self.origin[0] + side_without_bitoniau, self.origin[1]), piece_size)),
+            (PuzzlePiece(self.origin[0], self.origin[1] + side_without_bitoniau - bitoniau, [0, 0, 55], rotation=90), pg.Rect((self.origin[0], self.origin[1] + side_without_bitoniau), piece_size)),
+            (PuzzlePiece(self.origin[0] + side_without_bitoniau - bitoniau, self.origin[1] + side_without_bitoniau, [55, 55, 0], rotation=180), pg.Rect((self.origin[0] + side_without_bitoniau, self.origin[1] + side_without_bitoniau), piece_size))
         ]
 
-        self.puzzle_manager = PuzzleManager([(piece, rect) for piece, rect in self.puzzle_pieces])
+        # Create boundary rect for the puzzle area
+        boundary = pg.Rect(self.origin, (side_without_bitoniau * 2, side_without_bitoniau * 2))
+        
+        # Get minigames from level config and set their boundaries
+        minigames = {}
+        for i, minigame in enumerate(LEVELS[level_ind].minigames):
+            minigame.boundary = boundary
+            minigames[i] = minigame
+        
+        self.puzzle_manager = PuzzleManager(boundary, self.puzzle_pieces, minigames)
 
     def run(self):
         while self.level < len(LEVELS) and self.running:
@@ -50,12 +59,13 @@ class Game:
             
             self.player.handle_events(event)
             
-            if self.puzzle_manager.is_all_pieces_collected():
-                self.finished_level = True
+            
 
     def update(self):
         self.player.update()
         self.puzzle_manager.update()
+        if self.puzzle_manager.is_all_pieces_collected():
+            self.finished_level = True
         self.starfield.update()  # Update starfield animation
 
     def draw(self):
@@ -63,10 +73,7 @@ class Game:
         self.screen.fill((0, 0, 0))  # Black space
         self.starfield.draw(self.screen)  # Draw animated stars
         
-        # Draw original background (if you want to keep some elements, make it semi-transparent)
-        # Uncomment the next line if you want to overlay the original background
-        # self.screen.blit(self.background, (0, 0))
-        
+        self.screen.blit(self.background, self.origin)
         self.puzzle_manager.draw(self.screen)
         self.player.draw(self.screen)
 
@@ -77,7 +84,6 @@ class Game:
         self.screen.blit(fps_surf, (10, 10))
         pg.display.flip()
 
-
 if __name__ == "__main__":
     import pygame as pg
     pg.init()
@@ -85,6 +91,7 @@ if __name__ == "__main__":
     from puzzlepiece import PuzzlePiece
     from puzzlemanager import PuzzleManager
     from player import Player
-    from globalSurfaces import LEVELS
+    from levelconfig import LEVELS, LevelConfig
+    from minigame import GenericQuiz
     game = Game(display)
     game.run()
