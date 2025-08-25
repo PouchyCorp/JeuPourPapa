@@ -11,7 +11,7 @@ class PuzzlePiece:
         self.playing_fade_animation : bool = False
 
     def draw(self, surface: pg.Surface):
-        if not self.collected:
+        if not self.collected and not self.playing_fade_animation:
             surface.blit(self.image, self.rect)
 
         if self.playing_fade_animation:
@@ -29,6 +29,7 @@ class PuzzlePiece:
                 ## TODO: play sound effect
 
     def collect(self):
+        
         self.playing_fade_animation = True
         self.fade_alpha = 255
         self.fade_size = self.image.get_size()

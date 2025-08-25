@@ -15,9 +15,9 @@ class LevelConfig:
 LEVEL_1 = LevelConfig(
     minigames = [
         GenericQuiz("Answer 1", ["Answer 1", "Answer 2"], 0),
-        GenericQuiz("Answer 1", ["Answer 1", "Answer 2"], 0),
-        GenericQuiz("Answer 1", ["Answer 1", "Answer 2"], 0),
-        GenericQuiz("Answer 1", ["Answer 1", "Answer 2"], 0)
+        GenericQuiz("Answer 3", ["Answer 3", "Answer 4"], 0),
+        GenericQuiz("Answer 5", ["Answer 5", "Answer 6"], 0),
+        GenericQuiz("Answer 7", ["Answer 7", "Answer 8"], 0)
     ]
     , background = gs.LEVELS_SPRITES[0]
 )

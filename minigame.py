@@ -1,6 +1,6 @@
 import pygame as pg
 from puzzlepiece import PuzzlePiece
-
+from time import time
 
 class GenericQuiz:
     def __init__(self, right_answer, possible_answers, correct_index, question: str = "Répond à la question !"):
@@ -10,6 +10,7 @@ class GenericQuiz:
         self.right_answer = right_answer
         self.possible_answers = possible_answers
         self.correct_index = correct_index
+        self.is_completed_countdown = None
         self.buttons = []
         self.name = "Quiz"  # Add name attribute for PuzzleManager compatibility
 
@@ -17,7 +18,7 @@ class GenericQuiz:
         if not self.boundary:
             return  # Can't setup without boundary
             
-        from puzzlemanager import Button  # Import here to avoid circular imports
+        from Button import Button  # Import here to avoid circular imports
         from globalSurfaces import BUTTON_UP
 
         self.buttons: list[Button] = []
@@ -49,6 +50,10 @@ class GenericQuiz:
         if self.completed:
             return
         
+        if self.is_completed_countdown and time() >= self.is_completed_countdown:
+            self.completed = True
+            return
+        
         # Setup buttons if not already done
         if not self.buttons and self.boundary:
             self.setup()
@@ -56,12 +61,13 @@ class GenericQuiz:
         # Check win condition
         for button in self.buttons:
             if button.state == 'DOWN' and button.text == self.right_answer:
-                self.completed = True
+                self.is_completed_countdown = time() + 1  # 1 second countdown to mark as completed
+                # TODO: play success sound
         
         # Update buttons
         for button in self.buttons:
-            if button.state == 'DOWN':
-                pg.time.set_timer(pg.USEREVENT + 1, 1000)  # Reset all buttons after 1000ms
+            if button.state == 'DOWN' and button.last_pressed_time and time() - button.last_pressed_time >= 1:
+                button.reset()  # Reset all buttons after 1000ms
                 break
 
     def draw(self, surface: pg.Surface):
@@ -71,7 +77,7 @@ class GenericQuiz:
         # Draw the question text
         font = pg.font.SysFont("Arial", 48)
         question_surf = font.render(self.question, True, (255, 255, 255))
-        question_rect = question_surf.get_rect(center=(surface.get_width() // 2, 200))
+        question_rect = question_surf.get_rect(center=(self.boundary.centerx, self.boundary.top + 100))
         surface.blit(question_surf, question_rect)
         
         # Draw buttons

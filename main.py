@@ -25,16 +25,12 @@ class Game:
             (PuzzlePiece(self.origin[0] + side_without_bitoniau - bitoniau, self.origin[1] + side_without_bitoniau, [55, 55, 0], rotation=180), pg.Rect((self.origin[0] + side_without_bitoniau, self.origin[1] + side_without_bitoniau), piece_size))
         ]
 
-        # Create boundary rect for the puzzle area
-        boundary = pg.Rect(self.origin, (side_without_bitoniau * 2, side_without_bitoniau * 2))
-        
-        # Get minigames from level config and set their boundaries
-        minigames = {}
-        for i, minigame in enumerate(LEVELS[level_ind].minigames):
-            minigame.boundary = boundary
-            minigames[i] = minigame
-        
-        self.puzzle_manager = PuzzleManager(boundary, self.puzzle_pieces, minigames)
+        boundaries = []
+        for i in range(4):
+            boundaries.append(pg.Rect((self.origin[0] + side_without_bitoniau * (i % 2), self.origin[1] + side_without_bitoniau * (i // 2)),
+                                       (side_without_bitoniau, side_without_bitoniau)))
+
+        self.puzzle_manager = PuzzleManager(boundaries, self.puzzle_pieces, LEVELS[level_ind].minigames)
 
     def run(self):
         while self.level < len(LEVELS) and self.running:
@@ -82,6 +78,7 @@ class Game:
         font = pg.font.SysFont("Arial", 30)
         fps_surf = font.render(f"FPS: {fps}", True, (255, 0, 255))
         self.screen.blit(fps_surf, (10, 10))
+        
         pg.display.flip()
 
 if __name__ == "__main__":
