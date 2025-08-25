@@ -22,5 +22,14 @@ LEVEL_1 = LevelConfig(
     , background = gs.LEVELS_SPRITES[0]
 )
 
+LEVEL_2 = LevelConfig(
+    minigames = [
+        GenericQuiz("Answer 9", ["Answer 9", "Answer 10"], 0),
+        GenericQuiz("Answer 11", ["Answer 11", "Answer 12"], 0),
+        GenericQuiz("Answer 13", ["Answer 13", "Answer 14"], 0),
+        GenericQuiz("Answer 15", ["Answer 15", "Answer 16"], 0)
+    ]
+    , background = gs.LEVELS_SPRITES[0]
+)
 
-LEVELS = [LEVEL_1]
+LEVELS = [LEVEL_1, LEVEL_2]

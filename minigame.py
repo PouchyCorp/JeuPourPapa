@@ -11,6 +11,7 @@ class GenericQuiz:
         self.possible_answers = possible_answers
         self.correct_index = correct_index
         self.is_completed_countdown = None
+        self.fade_alpha = 255
         self.buttons = []
         self.name = "Quiz"  # Add name attribute for PuzzleManager compatibility
 
@@ -70,8 +71,22 @@ class GenericQuiz:
                 button.reset()  # Reset all buttons after 1000ms
                 break
 
-    def draw(self, surface: pg.Surface):
-        if self.completed:
+    def draw(self, surface: pg.Surface, screenshot_mode=False):
+        if self.is_completed_countdown and self.fade_alpha == 255 and not screenshot_mode: # Just completed
+            self.minigame_screenshot = pg.Surface(surface.get_size(), pg.SRCALPHA)
+            self.draw(self.minigame_screenshot, screenshot_mode=True) # Use screenshot mode to avoid recursion (this is made to have a general solution not just for quiz)
+            self.fade_alpha -= 1 # Start fading out
+
+        if self.is_completed_countdown and self.fade_alpha > 0 and not screenshot_mode: # Fading out
+            self.fade_alpha -= 5
+            self.minigame_screenshot.set_alpha(self.fade_alpha)
+            surface.blit(self.minigame_screenshot, (0,0))
+
+            if self.fade_alpha <= 0: # Fully faded out
+                self.fade_alpha = 0
+                self.completed = True
+            return
+        elif self.completed and not screenshot_mode: # Fully faded out
             return
         
         # Draw the question text

@@ -19,10 +19,10 @@ class Game:
         bitoniau = 88
         piece_size = (side_without_bitoniau, side_without_bitoniau)
         self.puzzle_pieces = [
-            (PuzzlePiece(*self.origin, [55, 0, 0], rotation=0), pg.Rect(self.origin, piece_size)),
-            (PuzzlePiece(self.origin[0] + side_without_bitoniau, self.origin[1], [0, 55, 0], rotation=270), pg.Rect((self.origin[0] + side_without_bitoniau, self.origin[1]), piece_size)),
-            (PuzzlePiece(self.origin[0], self.origin[1] + side_without_bitoniau - bitoniau, [0, 0, 55], rotation=90), pg.Rect((self.origin[0], self.origin[1] + side_without_bitoniau), piece_size)),
-            (PuzzlePiece(self.origin[0] + side_without_bitoniau - bitoniau, self.origin[1] + side_without_bitoniau, [55, 55, 0], rotation=180), pg.Rect((self.origin[0] + side_without_bitoniau, self.origin[1] + side_without_bitoniau), piece_size))
+            (PuzzlePiece(*self.origin, [162,112,112], rotation=0), pg.Rect(self.origin, piece_size)),
+            (PuzzlePiece(self.origin[0] + side_without_bitoniau, self.origin[1], [171,148,124], rotation=270), pg.Rect((self.origin[0] + side_without_bitoniau, self.origin[1]), piece_size)),
+            (PuzzlePiece(self.origin[0], self.origin[1] + side_without_bitoniau - bitoniau, [155,179,147], rotation=90), pg.Rect((self.origin[0], self.origin[1] + side_without_bitoniau), piece_size)),
+            (PuzzlePiece(self.origin[0] + side_without_bitoniau - bitoniau, self.origin[1] + side_without_bitoniau, [160,185,190], rotation=180), pg.Rect((self.origin[0] + side_without_bitoniau, self.origin[1] + side_without_bitoniau), piece_size))
         ]
 
         boundaries = []
@@ -89,6 +89,5 @@ if __name__ == "__main__":
     from puzzlemanager import PuzzleManager
     from player import Player
     from levelconfig import LEVELS, LevelConfig
-    from minigame import GenericQuiz
     game = Game(display)
     game.run()

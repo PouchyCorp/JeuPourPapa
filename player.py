@@ -25,7 +25,7 @@ class Player:
         if event.type == pg.KEYUP:
             if event.key == pg.K_SPACE:
                 pg.event.custom_type = pg.USEREVENT + 0
-                pg.event.post(pg.event.Event(pg.event.custom_type, {"pos": self.rect.center}))
+                pg.event.post(pg.event.Event(pg.event.custom_type, {"pos": (self.rect.centerx, self.rect.bottom - 20)}))
                 print("Action!")
         
 

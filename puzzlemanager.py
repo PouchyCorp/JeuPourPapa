@@ -37,7 +37,7 @@ class PuzzleManager:
             piece.draw(surface)
         
         for _, minigame in self.minigames_puzzlepiece_epic_duo: # Iterate twice to draw pieces below minigame
-            if minigame and not piece.collected and not minigame.completed:
+            if minigame:
                 minigame.draw(surface)
 
     
