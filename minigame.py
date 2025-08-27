@@ -44,12 +44,12 @@ class GenericMinigame:
 
 
 class Quiz(GenericMinigame):
-    def __init__(self, right_answer, possible_answers, correct_index, question: str = "Répond à la question !"):
+    def __init__(self, right_answer, possible_answers, question: str = "Répond à la question !", caption_image = None):
         super().__init__(name="Quiz")
         self.question = question
         self.right_answer = right_answer
         self.possible_answers = possible_answers
-        self.correct_index = correct_index
+        self.caption_image = caption_image
         self.buttons = []
 
     def setup(self):
@@ -105,10 +105,20 @@ class Quiz(GenericMinigame):
         super().draw(surface, screenshot_mode)
         if self.completed and not screenshot_mode:
             return
+        
+        if self.caption_image:
+            img_w, img_h = self.caption_image.get_size()
+            max_w = self.boundary.width - 100
+            max_h = self.boundary.height // 3
+            scale = min(max_w / img_w, max_h / img_h, 1)
+            new_size = (int(img_w * scale), int(img_h * scale))
+            img = pg.transform.smoothscale(self.caption_image, new_size)
+            img_rect = img.get_rect(center=(self.boundary.centerx, self.boundary.centery - 50))
+            surface.blit(img, img_rect)
 
         font = pg.font.SysFont("Arial", 48)
         question_surf = font.render(self.question, True, (255, 255, 255))
-        question_rect = question_surf.get_rect(center=(self.boundary.centerx, self.boundary.top + 100))
+        question_rect = question_surf.get_rect(center=(self.boundary.centerx, self.boundary.top + 50))
         surface.blit(question_surf, question_rect)
 
         for button in self.buttons:
@@ -130,9 +140,10 @@ class Memory(GenericMinigame):
         self.matched = set()
         self.card_size = (100, 100)
         self.last_flip_time = None
+        self.setup()
 
     def setup(self):
-        if not self.boundary or not self.images:
+        if not self.boundary:
             return
 
         num_cards = self.grid_size[0] * self.grid_size[1]
@@ -167,12 +178,14 @@ class Memory(GenericMinigame):
                     "index": idx
                 })
 
+        print(f"Memory game setup with {len(self.cards)} cards.")
+
     def update(self):
         super().update()
         if self.completed:
             return
-
-        if not self.cards and self.boundary and self.images:
+        
+        if not self.cards:
             self.setup()
 
         if len(self.flipped) == 2 and not self.last_flip_time:
@@ -190,7 +203,8 @@ class Memory(GenericMinigame):
             self.flipped = []
             self.last_flip_time = None
 
-        if all(card["matched"] for card in self.cards):
+        if all(card["matched"] for card in self.cards) and not self.completed and not self.is_completed_countdown:
+            print("Memory game completed!")
             self.is_completed_countdown = time() + 1
 
     def draw(self, surface: pg.Surface, screenshot_mode=False):
@@ -221,7 +235,7 @@ class Memory(GenericMinigame):
         if event.type == pg.USEREVENT + 0:
             pos = event.pos
             for idx, card in enumerate(self.cards):
-                if card["rect"].collidepoint(pos) and not card["flipped"] and not card["matched"]:
+                if card["rect"].collidepoint(pos) and not card["flipped"] and not card["matched"] and self.last_flip_time is None:
                     card["flipped"] = True
                     self.flipped.append(idx)
                     if len(self.flipped) > 2:
@@ -231,5 +245,128 @@ class Memory(GenericMinigame):
                         self.flipped = [idx]
                     break
 
+class SlidingPuzzle(GenericMinigame):
+    def __init__(self, grid_size=(4, 4), image=None):
+        super().__init__(name="SlidingPuzzle")
+        self.grid_size = grid_size
+        self.image = image
+        self.tiles = []
+        self.empty_pos = (grid_size[0] - 1, grid_size[1] - 1)
+        self.tile_size = (100, 100)
+        self.shuffling = True
+        self.setup_done = False
+        self.moved_indexes = None
 
+    def setup(self):
+        if not self.boundary:
+            return
+        w, h = self.boundary.width // self.grid_size[0], self.boundary.height // self.grid_size[1]
+        self.tile_size = (w, h)
+        self.tiles = []
+        img = self.image
+        if img is None:
+            img = pg.Surface((w * self.grid_size[0], h * self.grid_size[1]))
+            img.fill((150, 100, 200))
+        for y in range(self.grid_size[1]):
+            row = []
+            for x in range(self.grid_size[0]):
+                if (x, y) == (self.grid_size[0] - 1, self.grid_size[1] - 1):
+                    row.append(None)
+                else:
+                    rect = pg.Rect(x * w, y * h, w, h)
+                    tile_img = img.subsurface(rect).copy()
+                    row.append({"img": tile_img, "pos": (x, y), "correct": (x, y)})
+            self.tiles.append(row)
+        self.empty_pos = (self.grid_size[0] - 1, self.grid_size[1] - 1)
+        self.shuffle()
+        self.setup_done = True
+
+    def shuffle(self):
+        # Perform a number of random valid moves to shuffle the puzzle
+        moves = [(-1,0),(1,0),(0,-1),(0,1)]
+        last_move = None
+        for _ in range(100):
+            x, y = self.empty_pos
+            random.shuffle(moves)
+            for dx, dy in moves:
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < self.grid_size[0] and 0 <= ny < self.grid_size[1]:
+                    if last_move and (nx, ny) == last_move:
+                        continue
+                    self.tiles[y][x], self.tiles[ny][nx] = self.tiles[ny][nx], self.tiles[y][x]
+                    self.empty_pos = (nx, ny)
+                    last_move = (x, y)
+                    break
+
+    def update(self):
+        super().update()
+        if self.completed:
+            return
+        if not self.setup_done and self.boundary:
+            self.setup()
+        # Check for completion
+        solved = True
+        for y in range(self.grid_size[1]):
+            for x in range(self.grid_size[0]):
+                tile = self.tiles[y][x]
+                if tile is None:
+                    continue
+                if tile["correct"] != (x, y):
+                    solved = False
+        if solved and not self.is_completed_countdown:
+            self.is_completed_countdown = time() + 1
+
+        if self.moved_indexes:
+            (y1, x1), (y2, x2) = self.moved_indexes
+            if self.moved_lerp_increment > 0:
+                self.moved_lerp_increment -= 1
+            else:
+                self.tiles[y1][x1], self.tiles[y2][x2] = self.tiles[y2][x2], self.tiles[y1][x1]
+                self.empty_pos = (x1, y1)
+                self.moved_indexes = None
+                
+
+    def draw(self, surface: pg.Surface, screenshot_mode=False):
+        super().draw(surface, screenshot_mode)
+        if self.completed and not screenshot_mode:
+            return
+
+        w, h = self.tile_size
+        for y in range(self.grid_size[1]):
+            for x in range(self.grid_size[0]):
+                tile = self.tiles[y][x]
+                if self.moved_indexes:
+                    (my1, mx1), (my2, mx2) = self.moved_indexes
+                    if (y, x) == (my1, mx1):
+                        lerp = (10 - self.moved_lerp_increment) / 10
+                        draw_x = self.boundary.left + (mx1 + (mx2 - mx1) * lerp) * w
+                        draw_y = self.boundary.top + (my1 + (my2 - my1) * lerp) * h
+                        rect = pg.Rect(draw_x, draw_y, w, h)
+                    elif (y, x) == (my2, mx2): # do nothing for the other tile
+                        continue
+                    else:
+                        rect = pg.Rect(self.boundary.left + x * w, self.boundary.top + y * h, w, h)
+                else:
+                    rect = pg.Rect(self.boundary.left + x * w, self.boundary.top + y * h, w, h)
+                if tile is None:
+                    continue
+                surface.blit(tile["img"], rect)
+                pg.draw.rect(surface, (255, 255, 255), rect, 2)
+
+
+    def handle_event(self, event: pg.event.Event):
+        if self.completed:
+            return
+        if event.type == pg.USEREVENT + 0 and not self.moved_indexes:
+            mx, my = event.pos
+            w, h = self.tile_size
+            gx = (mx - self.boundary.left) // w # Grid x
+            gy = (my - self.boundary.top) // h # Grid y
+            if 0 <= gx < self.grid_size[0] and 0 <= gy < self.grid_size[1]:
+                ex, ey = self.empty_pos
+                if (abs(gx - ex) == 1 and gy == ey) or (abs(gy - ey) == 1 and gx == ex): # Check if adjacent
+                    # Swap tile with empty
+                    self.moved_indexes = ((gy, gx), (ey, ex))
+                    self.moved_lerp_increment = 10
+                    
 

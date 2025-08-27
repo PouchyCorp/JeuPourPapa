@@ -14,7 +14,7 @@ class Game:
         self.starfield = Starfield(self.screen.get_width(), self.screen.get_height(), num_stars=120)
     
     def init_level(self, level_ind : int):
-        self.background = LEVELS[level_ind].background
+        self.background = LEVELS[level_ind].background 
         side_without_bitoniau = 550
         bitoniau = 88
         piece_size = (side_without_bitoniau, side_without_bitoniau)
