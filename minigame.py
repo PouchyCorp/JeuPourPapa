@@ -150,7 +150,7 @@ class Memory(GenericMinigame):
         self.cards = []
         self.flipped = []
         self.matched = set()
-        self.card_size = (100, 100)
+        self.card_size = (110, 110)
         self.last_flip_time = None
         self.setup()
 
@@ -164,11 +164,9 @@ class Memory(GenericMinigame):
         images += random.sample(self.images, num_cards // 2 - len(images))
         images = images * 2
         
-        resized_images = []
-        for i in range(len(images)):
-            resized_images.append(pg.transform.scale(images[i], (self.card_size[0] - 10, self.card_size[1] - 10)))
-
-        random.shuffle(images)
+        # Create pairs of image indices instead of duplicating images
+        image_pairs = list(range(len(images) // 2)) * 2
+        random.shuffle(image_pairs)
 
         self.cards = []
         w, h = self.card_size
@@ -184,22 +182,19 @@ class Memory(GenericMinigame):
                 rect = pg.Rect(
                     start_x + x * (w + spacing), start_y + y * (h + spacing), w, h
                 )
-                self.cards.append(
-                    {
-                        "rect": rect,
-                        "image": images[idx],
-                        "flipped": False,
-                        "matched": False,
-                        "index": idx,
-                    }
-                )
+
+                image_idx = image_pairs[idx]
+                original_image = images[image_idx]
+                resized_image = pg.transform.scale(original_image, (self.card_size[0] - 10, self.card_size[1] - 10))
+
                 self.cards.append({
                     "rect": rect,
-                    "image": images[idx],
-                    "resized": resized_images[idx],
+                    "image": original_image,
+                    "resized": resized_image,
                     "flipped": False,
                     "matched": False,
-                    "index": idx
+                    "index": idx,
+                    "pair_id": image_idx  # Add pair identifier for matching
                 })
 
         print(f"Memory game setup with {len(self.cards)} cards.")
@@ -217,7 +212,7 @@ class Memory(GenericMinigame):
 
         if self.last_flip_time and time() - self.last_flip_time > 1:
             idx1, idx2 = self.flipped
-            if self.cards[idx1]["image"] == self.cards[idx2]["image"]:
+            if self.cards[idx1]["pair_id"] == self.cards[idx2]["pair_id"]:
                 self.cards[idx1]["matched"] = True
                 self.cards[idx2]["matched"] = True
                 self.matched.add(idx1)
