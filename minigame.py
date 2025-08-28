@@ -3,6 +3,7 @@ from puzzlepiece import PuzzlePiece
 from time import time
 import random
 
+
 class GenericMinigame:
     def __init__(self, name="Minigame"):
         self.boundary = None  # Will be set by PuzzleManager
@@ -22,7 +23,11 @@ class GenericMinigame:
             self.completed = True
 
     def draw(self, surface: pg.Surface, screenshot_mode=False):
-        if self.is_completed_countdown and self.fade_alpha == 255 and not screenshot_mode:
+        if (
+            self.is_completed_countdown
+            and self.fade_alpha == 255
+            and not screenshot_mode
+        ):
             self.minigame_screenshot = pg.Surface(surface.get_size(), pg.SRCALPHA)
             self.draw(self.minigame_screenshot, screenshot_mode=True)
             self.fade_alpha -= 1
@@ -44,7 +49,13 @@ class GenericMinigame:
 
 
 class Quiz(GenericMinigame):
-    def __init__(self, right_answer, possible_answers, question: str = "Répond à la question !", caption_image = None):
+    def __init__(
+        self,
+        right_answer,
+        possible_answers,
+        question: str = "Répond à la question !",
+        caption_image=None,
+    ):
         super().__init__(name="Quiz")
         self.question = question
         self.right_answer = right_answer
@@ -71,17 +82,9 @@ class Quiz(GenericMinigame):
 
         for i, answer in enumerate(self.possible_answers):
             rect = pg.Rect(
-                start_x + i * (button_width + spacing),
-                y,
-                button_width,
-                button_height
+                start_x + i * (button_width + spacing), y, button_width, button_height
             )
-            button = Button(
-                rect,
-                answer,
-                (255, 255, 255),
-                36
-            )
+            button = Button(rect, answer, (255, 255, 255), 36)
             self.buttons.append(button)
 
     def update(self):
@@ -93,11 +96,15 @@ class Quiz(GenericMinigame):
             self.setup()
 
         for button in self.buttons:
-            if button.state == 'DOWN' and button.text == self.right_answer:
+            if button.state == "DOWN" and button.text == self.right_answer:
                 self.is_completed_countdown = time() + 1
 
         for button in self.buttons:
-            if button.state == 'DOWN' and button.last_pressed_time and time() - button.last_pressed_time >= 1:
+            if (
+                button.state == "DOWN"
+                and button.last_pressed_time
+                and time() - button.last_pressed_time >= 1
+            ):
                 button.reset()
                 break
 
@@ -105,7 +112,7 @@ class Quiz(GenericMinigame):
         super().draw(surface, screenshot_mode)
         if self.completed and not screenshot_mode:
             return
-        
+
         if self.caption_image:
             img_w, img_h = self.caption_image.get_size()
             max_w = self.boundary.width - 100
@@ -113,12 +120,16 @@ class Quiz(GenericMinigame):
             scale = min(max_w / img_w, max_h / img_h, 1)
             new_size = (int(img_w * scale), int(img_h * scale))
             img = pg.transform.smoothscale(self.caption_image, new_size)
-            img_rect = img.get_rect(center=(self.boundary.centerx, self.boundary.centery - 50))
+            img_rect = img.get_rect(
+                center=(self.boundary.centerx, self.boundary.centery - 50)
+            )
             surface.blit(img, img_rect)
 
         font = pg.font.SysFont("Arial", 48)
         question_surf = font.render(self.question, True, (255, 255, 255))
-        question_rect = question_surf.get_rect(center=(self.boundary.centerx, self.boundary.top + 50))
+        question_rect = question_surf.get_rect(
+            center=(self.boundary.centerx, self.boundary.top + 50)
+        )
         surface.blit(question_surf, question_rect)
 
         for button in self.buttons:
@@ -129,6 +140,7 @@ class Quiz(GenericMinigame):
             return
         for button in self.buttons:
             button.handle_event(event)
+
 
 class Memory(GenericMinigame):
     def __init__(self, grid_size=(4, 4), images=None):
@@ -170,11 +182,18 @@ class Memory(GenericMinigame):
             for x in range(self.grid_size[0]):
                 idx = y * self.grid_size[0] + x
                 rect = pg.Rect(
-                    start_x + x * (w + spacing),
-                    start_y + y * (h + spacing),
-                    w,
-                    h
+                    start_x + x * (w + spacing), start_y + y * (h + spacing), w, h
                 )
+                self.cards.append(
+                    {
+                        "rect": rect,
+                        "image": images[idx],
+                        "flipped": False,
+                        "matched": False,
+                        "index": idx,
+                    }
+                )
+<<<<<<< Updated upstream
                 self.cards.append({
                     "rect": rect,
                     "image": images[idx],
@@ -183,6 +202,8 @@ class Memory(GenericMinigame):
                     "matched": False,
                     "index": idx
                 })
+=======
+>>>>>>> Stashed changes
 
         print(f"Memory game setup with {len(self.cards)} cards.")
 
@@ -190,7 +211,7 @@ class Memory(GenericMinigame):
         super().update()
         if self.completed:
             return
-        
+
         if not self.cards:
             self.setup()
 
@@ -209,7 +230,11 @@ class Memory(GenericMinigame):
             self.flipped = []
             self.last_flip_time = None
 
-        if all(card["matched"] for card in self.cards) and not self.completed and not self.is_completed_countdown:
+        if (
+            all(card["matched"] for card in self.cards)
+            and not self.completed
+            and not self.is_completed_countdown
+        ):
             print("Memory game completed!")
             self.is_completed_countdown = time() + 1
 
@@ -220,16 +245,29 @@ class Memory(GenericMinigame):
 
         font = pg.font.SysFont("Arial", 48)
         title_surf = font.render("Memory Game", True, (255, 255, 255))
-        title_rect = title_surf.get_rect(center=(self.boundary.centerx, self.boundary.top + 60))
+        title_rect = title_surf.get_rect(
+            center=(self.boundary.centerx, self.boundary.top + 60)
+        )
         surface.blit(title_surf, title_rect)
 
         for card in self.cards:
-            color = (200, 200, 200) if card["flipped"] or card["matched"] else (50, 50, 50)
+            color = (
+                (200, 200, 200) if card["flipped"] or card["matched"] else (50, 50, 50)
+            )
             pg.draw.rect(surface, color, card["rect"])
             pg.draw.rect(surface, (255, 255, 255), card["rect"], 2)
             if card["flipped"] or card["matched"]:
+<<<<<<< Updated upstream
                 if isinstance(card["resized"], pg.Surface):
                     surface.blit(card["resized"], (card["rect"].x + 5, card["rect"].y + 5))
+=======
+                if isinstance(card["image"], pg.Surface):
+                    img = pg.transform.scale(
+                        card["image"],
+                        (card["rect"].width - 10, card["rect"].height - 10),
+                    )
+                    surface.blit(img, (card["rect"].x + 5, card["rect"].y + 5))
+>>>>>>> Stashed changes
                 else:
                     img_font = pg.font.SysFont("Arial", 36)
                     img_surf = img_font.render(str(card["image"]), True, (0, 0, 0))
@@ -240,7 +278,12 @@ class Memory(GenericMinigame):
         if event.type == pg.USEREVENT + 0:
             pos = event.pos
             for idx, card in enumerate(self.cards):
-                if card["rect"].collidepoint(pos) and not card["flipped"] and not card["matched"] and self.last_flip_time is None:
+                if (
+                    card["rect"].collidepoint(pos)
+                    and not card["flipped"]
+                    and not card["matched"]
+                    and self.last_flip_time is None
+                ):
                     card["flipped"] = True
                     self.flipped.append(idx)
                     if len(self.flipped) > 2:
@@ -249,6 +292,7 @@ class Memory(GenericMinigame):
                             self.cards[i]["flipped"] = False
                         self.flipped = [idx]
                     break
+
 
 class SlidingPuzzle(GenericMinigame):
     def __init__(self, grid_size=(4, 4), image=None):
@@ -265,7 +309,10 @@ class SlidingPuzzle(GenericMinigame):
     def setup(self):
         if not self.boundary:
             return
-        w, h = self.boundary.width // self.grid_size[0], self.boundary.height // self.grid_size[1]
+        w, h = (
+            self.boundary.width // self.grid_size[0],
+            self.boundary.height // self.grid_size[1],
+        )
         self.tile_size = (w, h)
         self.tiles = []
         img = self.image
@@ -288,7 +335,7 @@ class SlidingPuzzle(GenericMinigame):
 
     def shuffle(self):
         # Perform a number of random valid moves to shuffle the puzzle
-        moves = [(-1,0),(1,0),(0,-1),(0,1)]
+        moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
         last_move = None
         for _ in range(100):
             x, y = self.empty_pos
@@ -298,7 +345,10 @@ class SlidingPuzzle(GenericMinigame):
                 if 0 <= nx < self.grid_size[0] and 0 <= ny < self.grid_size[1]:
                     if last_move and (nx, ny) == last_move:
                         continue
-                    self.tiles[y][x], self.tiles[ny][nx] = self.tiles[ny][nx], self.tiles[y][x]
+                    self.tiles[y][x], self.tiles[ny][nx] = (
+                        self.tiles[ny][nx],
+                        self.tiles[y][x],
+                    )
                     self.empty_pos = (nx, ny)
                     last_move = (x, y)
                     break
@@ -326,10 +376,12 @@ class SlidingPuzzle(GenericMinigame):
             if self.moved_lerp_increment > 0:
                 self.moved_lerp_increment -= 1
             else:
-                self.tiles[y1][x1], self.tiles[y2][x2] = self.tiles[y2][x2], self.tiles[y1][x1]
+                self.tiles[y1][x1], self.tiles[y2][x2] = (
+                    self.tiles[y2][x2],
+                    self.tiles[y1][x1],
+                )
                 self.empty_pos = (x1, y1)
                 self.moved_indexes = None
-                
 
     def draw(self, surface: pg.Surface, screenshot_mode=False):
         super().draw(surface, screenshot_mode)
@@ -347,17 +399,20 @@ class SlidingPuzzle(GenericMinigame):
                         draw_x = self.boundary.left + (mx1 + (mx2 - mx1) * lerp) * w
                         draw_y = self.boundary.top + (my1 + (my2 - my1) * lerp) * h
                         rect = pg.Rect(draw_x, draw_y, w, h)
-                    elif (y, x) == (my2, mx2): # do nothing for the other tile
+                    elif (y, x) == (my2, mx2):  # do nothing for the other tile
                         continue
                     else:
-                        rect = pg.Rect(self.boundary.left + x * w, self.boundary.top + y * h, w, h)
+                        rect = pg.Rect(
+                            self.boundary.left + x * w, self.boundary.top + y * h, w, h
+                        )
                 else:
-                    rect = pg.Rect(self.boundary.left + x * w, self.boundary.top + y * h, w, h)
+                    rect = pg.Rect(
+                        self.boundary.left + x * w, self.boundary.top + y * h, w, h
+                    )
                 if tile is None:
                     continue
                 surface.blit(tile["img"], rect)
                 pg.draw.rect(surface, (255, 255, 255), rect, 2)
-
 
     def handle_event(self, event: pg.event.Event):
         if self.completed:
@@ -365,14 +420,17 @@ class SlidingPuzzle(GenericMinigame):
         if event.type == pg.USEREVENT + 0 and not self.moved_indexes:
             mx, my = event.pos
             w, h = self.tile_size
-            gx = (mx - self.boundary.left) // w # Grid x
-            gy = (my - self.boundary.top) // h # Grid y
+            gx = (mx - self.boundary.left) // w  # Grid x
+            gy = (my - self.boundary.top) // h  # Grid y
             if 0 <= gx < self.grid_size[0] and 0 <= gy < self.grid_size[1]:
                 ex, ey = self.empty_pos
-                if (abs(gx - ex) == 1 and gy == ey) or (abs(gy - ey) == 1 and gx == ex): # Check if adjacent
+                if (abs(gx - ex) == 1 and gy == ey) or (
+                    abs(gy - ey) == 1 and gx == ex
+                ):  # Check if adjacent
                     # Swap tile with empty
                     self.moved_indexes = ((gy, gx), (ey, ex))
                     self.moved_lerp_increment = 10
+<<<<<<< Updated upstream
                     
 
 class ColorButton:
@@ -526,3 +584,5 @@ class ColorSequenceMemory(GenericMinigame):
                         self.message = "Bien joué !"
                         self.state = "finished"
                         return
+=======
+>>>>>>> Stashed changes
