@@ -151,6 +151,11 @@ class Memory(GenericMinigame):
         images = self.images * (num_cards // (2 * len(self.images)))
         images += random.sample(self.images, num_cards // 2 - len(images))
         images = images * 2
+        
+        resized_images = []
+        for i in range(len(images)):
+            resized_images.append(pg.transform.scale(images[i], (self.card_size[0] - 10, self.card_size[1] - 10)))
+
         random.shuffle(images)
 
         self.cards = []
@@ -173,6 +178,7 @@ class Memory(GenericMinigame):
                 self.cards.append({
                     "rect": rect,
                     "image": images[idx],
+                    "resized": resized_images[idx],
                     "flipped": False,
                     "matched": False,
                     "index": idx
@@ -222,9 +228,8 @@ class Memory(GenericMinigame):
             pg.draw.rect(surface, color, card["rect"])
             pg.draw.rect(surface, (255, 255, 255), card["rect"], 2)
             if card["flipped"] or card["matched"]:
-                if isinstance(card["image"], pg.Surface):
-                    img = pg.transform.scale(card["image"], (card["rect"].width - 10, card["rect"].height - 10))
-                    surface.blit(img, (card["rect"].x + 5, card["rect"].y + 5))
+                if isinstance(card["resized"], pg.Surface):
+                    surface.blit(card["resized"], (card["rect"].x + 5, card["rect"].y + 5))
                 else:
                     img_font = pg.font.SysFont("Arial", 36)
                     img_surf = img_font.render(str(card["image"]), True, (0, 0, 0))
@@ -502,12 +507,13 @@ class ColorSequenceMemory(GenericMinigame):
     def handle_event(self, event: pg.event.Event):
         if self.completed:
             return
-        if self.state == "waiting" and self.start_button:
+        if self.state == "waiting" and self.start_button: # waiting to start
             self.start_button.handle_event(event)
             if self.start_button.state == 'DOWN':
                 self.start_sequence()
                 self.start_button.reset()
-        elif self.state == "input":
+                
+        elif self.state == "input": # user input phase
             for btn in self.buttons:
                 if btn.handle_event(event):
                     btn.flash()
