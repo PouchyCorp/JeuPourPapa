@@ -370,3 +370,153 @@ class SlidingPuzzle(GenericMinigame):
                     self.moved_lerp_increment = 10
                     
 
+class ColorButton:
+    def __init__(self, center, radius, color, flash_color, index):
+        self.center = center
+        self.radius = radius
+        self.color = color
+        self.flash_color = flash_color
+        self.index = index
+        self.flashing = False
+        self.flash_end_time = 0
+
+    def draw(self, surface):
+        draw_color = self.flash_color if self.flashing else self.color
+        pg.draw.circle(surface, draw_color, self.center, self.radius)
+        pg.draw.circle(surface, (255, 255, 255), self.center, self.radius, 4)
+
+    def handle_event(self, event):
+        if event.type == pg.USEREVENT + 0 and not self.flashing:
+            if (pg.Vector2(event.pos) - pg.Vector2(self.center)).length() <= self.radius:
+                return True
+        return False
+
+    def flash(self, duration=0.4):
+        self.flashing = True
+        self.flash_end_time = time() + duration
+
+    def update(self):
+        if self.flashing and time() >= self.flash_end_time:
+            self.flashing = False
+
+class ColorSequenceMemory(GenericMinigame):
+    COLORS = [
+        ((100, 20, 20), (220, 40, 40)),   # Red
+        ((20, 100, 20), (40, 220, 40)),   # Green
+        ((20, 20, 100), (40, 40, 220)),   # Blue
+        ((100, 100, 20), (220, 220, 40)),  # Yellow
+    ]
+
+    def __init__(self, sequence_length=4):
+        super().__init__(name="ColorSequenceMemory")
+        self.sequence_length = sequence_length
+        self.sequence = []
+        self.user_input = []
+        self.buttons = []
+        self.state = "waiting"  # waiting, showing, input, finished : FSM
+        self.show_index = 0
+        self.show_next_time = 0
+        self.start_button = None
+        self.message = "Memorise la séquence !"
+        self.last_flash_time = 0
+
+    def setup(self):
+        if not self.boundary:
+            return
+
+        cx, cy = self.boundary.centerx, self.boundary.centery
+        r = min(self.boundary.width, self.boundary.height) // 6
+        offset = r * 2
+        positions = [
+            (cx - offset, cy - offset),
+            (cx + offset, cy - offset),
+            (cx - offset, cy + offset),
+            (cx + offset, cy + offset),
+        ]
+        self.buttons = []
+        for i, ((color, flash_color), pos) in enumerate(zip(self.COLORS, positions)):
+            self.buttons.append(ColorButton(pos, r, color, flash_color, i))
+
+        from Button import Button
+        from globalSurfaces import BUTTON_UP
+
+        button_width = BUTTON_UP.get_width()
+        button_height = BUTTON_UP.get_height()
+        rect = pg.Rect(cx - button_width // 2, self.boundary.bottom - 120, button_width, button_height)
+        self.start_button = Button(rect, "Commencer", (255, 255, 255))
+        self.state = "waiting"
+        self.sequence = []
+        self.user_input = []
+        self.show_index = 0
+
+    def start_sequence(self, seq_length=4):
+        self.sequence = [random.randint(0, 3) for _ in range(seq_length)]
+        self.user_input = []
+        self.state = "showing"
+        self.show_index = 0
+        self.show_next_time = time() + 0.5
+
+    def update(self):
+        super().update()
+        if self.completed:
+            return
+        if not self.buttons and self.boundary:
+            self.setup()
+        for btn in self.buttons:
+            btn.update()
+        if self.state == "showing":
+            now = time()
+            if self.show_index < len(self.sequence):
+                if now >= self.show_next_time:
+                    idx = self.sequence[self.show_index]
+                    self.buttons[idx].flash()
+                    self.show_index += 1
+                    self.show_next_time = now + 0.7
+            else:
+                # Wait for last flash to finish
+                if all(not btn.flashing for btn in self.buttons):
+                    self.state = "input"
+                    self.message = "Reproduis la séquence !"
+
+        elif self.state == "finished":
+            if not self.is_completed_countdown:
+                self.is_completed_countdown = time() + 1
+
+    def draw(self, surface: pg.Surface, screenshot_mode=False):
+        super().draw(surface, screenshot_mode)
+        if self.completed and not screenshot_mode:
+            return
+
+        for btn in self.buttons:
+            btn.draw(surface)
+        # Draw start button
+        if self.state == "waiting" and self.start_button:
+            self.start_button.draw(surface)
+        # Draw message
+        if self.message:
+            msg_font = pg.font.SysFont("Arial", 32)
+            msg_surf = msg_font.render(self.message, True, (255, 255, 255))
+            msg_rect = msg_surf.get_rect(center=(self.boundary.centerx, self.boundary.centery))
+            surface.blit(msg_surf, msg_rect)
+
+    def handle_event(self, event: pg.event.Event):
+        if self.completed:
+            return
+        if self.state == "waiting" and self.start_button:
+            self.start_button.handle_event(event)
+            if self.start_button.state == 'DOWN':
+                self.start_sequence()
+                self.start_button.reset()
+        elif self.state == "input":
+            for btn in self.buttons:
+                if btn.handle_event(event):
+                    btn.flash()
+                    self.user_input.append(btn.index)
+                    if self.user_input[-1] != self.sequence[len(self.user_input) - 1]:
+                        self.message = "Faux ! Recommence."
+                        self.state = "waiting"
+                        return
+                    if len(self.user_input) == len(self.sequence):
+                        self.message = "Bien joué !"
+                        self.state = "finished"
+                        return

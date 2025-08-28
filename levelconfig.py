@@ -14,7 +14,7 @@ LEVEL_1 = LevelConfig(
         minigame.Quiz("Answer 1", ["Answer 1", "Answer 2"], caption_image=gs.PUZZLE_PIECE),
         minigame.Memory((4, 4), gs.MEMORY_CARDS_1),
         minigame.SlidingPuzzle((3, 3), gs.LEVELS_SPRITES[0]),
-        minigame.Quiz("Answer 7", ["Answer 7", "Answer 8"])
+        minigame.ColorSequenceMemory(5)
     ]
     , background = gs.LEVELS_SPRITES[0]
 )

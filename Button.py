@@ -4,7 +4,7 @@ import pygame as pg
 
 
 class Button:
-    def __init__(self, rect : pg.Rect, text='', text_color=(0, 0, 0), font_size=30):
+    def __init__(self, rect : pg.Rect, text='', text_color=(0, 0, 0), font_size=23):
         self.surf = BUTTON_UP
         self.rect = self.surf.get_rect(topleft=rect.topleft)
         self.state = 'UP'
