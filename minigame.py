@@ -193,7 +193,6 @@ class Memory(GenericMinigame):
                         "index": idx,
                     }
                 )
-<<<<<<< Updated upstream
                 self.cards.append({
                     "rect": rect,
                     "image": images[idx],
@@ -202,8 +201,6 @@ class Memory(GenericMinigame):
                     "matched": False,
                     "index": idx
                 })
-=======
->>>>>>> Stashed changes
 
         print(f"Memory game setup with {len(self.cards)} cards.")
 
@@ -257,17 +254,8 @@ class Memory(GenericMinigame):
             pg.draw.rect(surface, color, card["rect"])
             pg.draw.rect(surface, (255, 255, 255), card["rect"], 2)
             if card["flipped"] or card["matched"]:
-<<<<<<< Updated upstream
                 if isinstance(card["resized"], pg.Surface):
                     surface.blit(card["resized"], (card["rect"].x + 5, card["rect"].y + 5))
-=======
-                if isinstance(card["image"], pg.Surface):
-                    img = pg.transform.scale(
-                        card["image"],
-                        (card["rect"].width - 10, card["rect"].height - 10),
-                    )
-                    surface.blit(img, (card["rect"].x + 5, card["rect"].y + 5))
->>>>>>> Stashed changes
                 else:
                     img_font = pg.font.SysFont("Arial", 36)
                     img_surf = img_font.render(str(card["image"]), True, (0, 0, 0))
@@ -430,7 +418,6 @@ class SlidingPuzzle(GenericMinigame):
                     # Swap tile with empty
                     self.moved_indexes = ((gy, gx), (ey, ex))
                     self.moved_lerp_increment = 10
-<<<<<<< Updated upstream
                     
 
 class ColorButton:
@@ -584,5 +571,3 @@ class ColorSequenceMemory(GenericMinigame):
                         self.message = "Bien joué !"
                         self.state = "finished"
                         return
-=======
->>>>>>> Stashed changes
