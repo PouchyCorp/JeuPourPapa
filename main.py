@@ -4,6 +4,10 @@ class Game:
         self.screen: pg.Surface = display
         pg.display.set_caption("TOP SECRET")
         self.clock = pg.time.Clock()
+        import start
+
+        start.run(self.clock, display)
+
         self.player = Player(400, 300)
         self.level = 0
         self.running = True
