@@ -193,7 +193,6 @@ class Memory(GenericMinigame):
                         "index": idx,
                     }
                 )
-<<<<<<< Updated upstream
                 self.cards.append({
                     "rect": rect,
                     "image": images[idx],
@@ -202,8 +201,6 @@ class Memory(GenericMinigame):
                     "matched": False,
                     "index": idx
                 })
-=======
->>>>>>> Stashed changes
 
         print(f"Memory game setup with {len(self.cards)} cards.")
 
