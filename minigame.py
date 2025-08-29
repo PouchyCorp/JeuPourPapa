@@ -517,7 +517,7 @@ class ColorSequenceMemory(GenericMinigame):
     def __init__(self, sequence_length):
         super().__init__(name="ColorSequenceMemory")
         self.sequence_length = sequence_length
-        self.sequence = []
+        self.sequence = [random.randint(0, 3) for _ in range(self.sequence_length)]
         self.user_input = []
         self.buttons = []
         self.state = "waiting"  # waiting, showing, input, finished : FSM
@@ -557,12 +557,10 @@ class ColorSequenceMemory(GenericMinigame):
         )
         self.start_button = Button(rect, "Commencer", (255, 255, 255))
         self.state = "waiting"
-        self.sequence = []
         self.user_input = []
         self.show_index = 0
 
     def start_sequence(self):
-        self.sequence = [random.randint(0, 3) for _ in range(self.sequence_length)]
         self.user_input = []
         self.state = "showing"
         self.show_index = 0
