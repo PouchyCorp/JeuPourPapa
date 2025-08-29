@@ -56,7 +56,7 @@ LEVEL_3 = LevelConfig(
             caption_image=gs.PHOTO_OF_2011,
             question="Quand a été prise cette photo ?",
         ),
-        minigame.ColorSequenceMemory(15),
+        minigame.ColorSequenceMemory(13),
         minigame.Quiz(
             "Marius",
             ["Marius", "Mark", "Sam"],
