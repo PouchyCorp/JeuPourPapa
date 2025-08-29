@@ -28,9 +28,20 @@ def run(clock: pg.time.Clock, display: pg.Surface):
 
         display.blit(happy_birthday, image_rect)
 
+    is_fading = False
+    fade_number = 0
+    fade_increment = 40
+
+    def apply_black_fade(fade_number: int = fade_number):
+        fade_color = pg.Color(fade_number, fade_number, fade_number)
+        fade_screeen = pg.Surface(display.get_size())
+        fade_screeen.fill(fade_color)
+        display.blit(fade_screeen, (0, 0), special_flags=pg.BLEND_RGBA_SUB)
+
     running = True
 
     while running:
+
         display.blit(walpaper, (0, 0))
 
         show_happy_birthday(200, 50)
@@ -40,6 +51,10 @@ def run(clock: pg.time.Clock, display: pg.Surface):
             if event.type == pg.QUIT or event.type == pg.KEYUP:
                 running = False
 
+        if is_fading:
+            fade_number += fade_increment
+
+        apply_black_fade(255)
         pg.display.flip()
         display.fill("black")
         clock.tick_busy_loop(60)
