@@ -7,7 +7,7 @@ import pygame as pg
 LEVELS_SPRITES = [
     sprite.load_image("assets/photos/4.png"),
     sprite.load_image("assets/photos/2.png"),
-    sprite.load_image("assets/photos/6.png")
+    sprite.load_image("assets/photos/6.png"),
 ]
 
 PUZZLE_PIECE = sprite.load_image("assets/images/puzzlepiece.png", 1.1)
@@ -17,7 +17,7 @@ BUTTON_DOWN = sprite.load_image("assets/images/buttonDown.png", 0.5)
 MEMORY_CARDS_1 = [
     sprite.load_image(f"assets/mem images/mem{i}.jpg", 0.3) for i in range(1, 9)
 ]
-
+RASINARI_PHOTO = sprite.load_image("assets/photos/rasinari.JPG")
 
 PLAYER_SPRITESHEET = sprite.Spritesheet(
     sprite.load_image("assets/images/spritesheetMC.png", 0.2),
