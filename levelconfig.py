@@ -46,7 +46,10 @@ LEVEL_3 = LevelConfig(
         ),
         minigame.ColorSequenceMemory(15),
         minigame.Quiz(
-            "Louane", ["Louane", "Isabelle"], question="Qui n'aime pas les poireaux?"
+            "Mariux",
+            ["Marius", "Mark", "Sam"],
+            question="Le bus de ..?",
+            caption_image=gs.HISOITRE_PHOTO,
         ),
         minigame.SlidingPuzzle((3, 3), gs.LEVELS_SPRITES[0]),
     ],

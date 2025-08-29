@@ -23,6 +23,7 @@ PHOTO_OF_2011 = sprite.load_image("assets/photos/2011.JPG")
 CHEESE_PHOTO = sprite.load_image("assets/photos/fromage.JPG")
 LOUIS_PHOTO = sprite.load_image("assets/photos/louis.jpg")
 PAPA_PERRUQUE = sprite.load_image("assets/photos/1.png")
+HISOITRE_PHOTO = sprite.load_image("assets/photos/histoire.jpg")
 
 PLAYER_SPRITESHEET = sprite.Spritesheet(
     sprite.load_image("assets/images/spritesheetMC.png", 0.2),
