@@ -48,7 +48,10 @@ def run(clock: pg.time.Clock, display: pg.Surface):
         show_press_key(900, 40)
 
         for event in pg.event.get():
-            if event.type == pg.QUIT or event.type == pg.KEYUP:
+            if event.type == pg.QUIT:
+                from sys import exit
+                exit()
+            if event.type == pg.KEYUP:
                 running = False
 
         if is_fading:

@@ -4,14 +4,13 @@ class Game:
         self.screen: pg.Surface = display
         pg.display.set_caption("TOP SECRET")
         self.clock = pg.time.Clock()
-        import start
-
-        start.run(self.clock, display)
 
         self.player = Player(400, 300)
         self.level = 0
         self.running = True
         self.origin = (410, 0)
+        self.secret_activated = False
+        self.secret_timer = 0
 
         # Initialize starfield background
         from starfield import Starfield
@@ -21,7 +20,10 @@ class Game:
         )
 
     def init_level(self, level_ind: int):
-        self.background = LEVELS[level_ind].background
+        self.original_background = LEVELS[level_ind].background
+        self.background = self.original_background.subsurface(
+            (max(0, self.original_background.get_rect().centerx - 550), 0, 1100, 1100)
+        )
         side_without_bitoniau = 550
         bitoniau = 88
         piece_size = (side_without_bitoniau, side_without_bitoniau)
@@ -86,6 +88,8 @@ class Game:
         )
 
     def run(self):
+        import start
+        start.run(self.clock, self.screen)
         while self.level < len(LEVELS) and self.running:
             self.finished_level = False
             self.init_level(self.level)
@@ -94,6 +98,10 @@ class Game:
                 self.update()
                 self.draw()
                 self.clock.tick(60)
+
+            if self.finished_level:
+                self.animate_background_grow()
+
             self.level += 1
         pg.quit()
 
@@ -103,6 +111,14 @@ class Game:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 self.running = False
+            
+            # Enhanced secret keybind to complete level: Ctrl+Shift+C
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_c:
+                    keys = pg.key.get_pressed()
+                    if keys[pg.K_LCTRL] and keys[pg.K_LSHIFT]:
+                        if not self.finished_level:
+                            self.finished_level = True
 
             self.puzzle_manager.handle_event(event)
 
@@ -113,7 +129,7 @@ class Game:
         self.puzzle_manager.update()
         if self.puzzle_manager.is_all_pieces_collected():
             self.finished_level = True
-        self.starfield.update()  # Update starfield animation
+        self.starfield.update()
 
     def draw(self):
         # Draw black space background with stars
@@ -131,6 +147,42 @@ class Game:
         self.screen.blit(fps_surf, (10, 10))
 
         pg.display.flip()
+    
+    def animate_background_grow(self):
+        grow_steps = 30
+        wait_seconds = 2
+        orig_bg = self.original_background
+        orig_rect = orig_bg.get_rect()
+        target_rect = orig_rect.copy()
+        # Start from the cropped background
+        start_rect = self.background.get_rect(topleft=self.origin)
+        for step in range(1, grow_steps + 1):
+            lerp = step / grow_steps
+
+            # Interpolate rect
+            new_width = int(start_rect.width + (target_rect.width - start_rect.width) * lerp)
+            new_height = int(start_rect.height + (target_rect.height - start_rect.height) * lerp)
+
+            # Scale and blit
+            scaled_bg = pg.transform.smoothscale(orig_bg, (new_width, new_height))
+            rect = scaled_bg.get_rect(center=(self.screen.get_rect().centerx, scaled_bg.get_height() // 2))
+            self.screen.fill((0, 0, 0))
+            self.starfield.update()
+            self.starfield.draw(self.screen)
+            self.screen.blit(scaled_bg, rect)
+
+            pg.display.flip()
+            self.clock.tick(60)
+        # Wait a few seconds
+        start_time = time.time()
+        while time.time() - start_time < wait_seconds:
+            self.screen.fill((0, 0, 0))
+            self.starfield.update()
+            self.starfield.draw(self.screen)
+            self.screen.blit(orig_bg, orig_bg.get_rect(center=(self.screen.get_rect().centerx, orig_bg.get_height() // 2)))
+            pg.display.flip()
+            self.clock.tick(60)
+
 
 
 if __name__ == "__main__":
@@ -144,6 +196,7 @@ if __name__ == "__main__":
     from puzzlemanager import PuzzleManager
     from player import Player
     from levelconfig import LEVELS, LevelConfig
+    import time
 
     game = Game(display)
     game.run()
