@@ -1,6 +1,7 @@
 import pygame as pg
 
 import sprite
+from globalSurfaces import START_GAME_SOUND
 
 
 def run(clock: pg.time.Clock, display: pg.Surface):
@@ -44,10 +45,12 @@ def run(clock: pg.time.Clock, display: pg.Surface):
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 from sys import exit
+
                 exit()
-            if event.type == pg.KEYUP:
-                running = False
+            if event.type == pg.KEYUP and running:
+                START_GAME_SOUND.play()
                 fade.start(0.012)
+                running = False
 
         pg.display.flip()
         display.fill("black")
