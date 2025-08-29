@@ -29,6 +29,11 @@ YELLOW_BUTTON_SOUND = pg.mixer.Sound("assets/sound/yellow.wav")
 BLUE_BUTTON_SOUND = pg.mixer.Sound("assets/sound/blue.wav")
 GREEN_BUTTON_SOUND = pg.mixer.Sound("assets/sound/green.wav")
 
+
+BUTTON_PUSHED_SOUND = pg.mixer.Sound("assets/sound/button_pushed.wav")
+
+
 ACHIEVE_LEVEL_SOUND = pg.mixer.Sound("assets/sound/achieve_level.mp3")
 START_GAME_SOUND = pg.mixer.Sound("assets/sound/start_of_game_alt.mp3")
 ACHIEVE_PUZZLE_SOUND = pg.mixer.Sound("assets/sound/achieve_puzzle.wav")
+ERROR_MEMORY_SOUND = pg.mixer.Sound("assets/sound/error_memory.mp3")
