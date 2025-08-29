@@ -1,5 +1,7 @@
 import pygame as pg
 
+import sprite
+
 
 def run(clock: pg.time.Clock, display: pg.Surface):
 
@@ -29,12 +31,15 @@ def run(clock: pg.time.Clock, display: pg.Surface):
         display.blit(happy_birthday, image_rect)
 
     running = True
-
-    while running:
+    fade = sprite.ScreenFade()
+    while running or fade.is_ascending():
         display.blit(walpaper, (0, 0))
 
         show_happy_birthday(200, 50)
         show_press_key(900, 40)
+
+        fade.draw(display)
+        fade.update()
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -42,6 +47,7 @@ def run(clock: pg.time.Clock, display: pg.Surface):
                 exit()
             if event.type == pg.KEYUP:
                 running = False
+                fade.start(0.012)
 
         pg.display.flip()
         display.fill("black")
