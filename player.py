@@ -52,5 +52,5 @@ class Player:
             self.surf = self.idle_surf.copy()  # Use copy to avoid modifying original
 
         # Flip sprite based on direction
-        if self.facing_left:
+        if not self.facing_left:
             self.surf = pg.transform.flip(self.surf, True, False)
