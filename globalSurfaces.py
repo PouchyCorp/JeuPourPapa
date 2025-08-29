@@ -45,3 +45,10 @@ ACHIEVE_PUZZLE_SOUND = pg.mixer.Sound("assets/sound/achieve_puzzle.wav")
 
 ERROR_MEMORY_SOUND = pg.mixer.Sound("assets/sound/error_memory.wav")
 WIN_MEMORY_SOUND = pg.mixer.Sound("assets/sound/win_memory.wav")
+
+MUSIC = pg.mixer.music.load("assets/sound/music.wav")
+pg.mixer.music.set_volume(0.05)
+
+WALLPAPER_START = pg.image.load(
+    "assets\start_assets\wallpaper.jpg"
+)  # image has to be 1920/1080, it doesn't get resized

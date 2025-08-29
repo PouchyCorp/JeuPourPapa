@@ -1,17 +1,14 @@
 import pygame as pg
 
 import sprite
-from globalSurfaces import START_GAME_SOUND
+from globalSurfaces import START_GAME_SOUND, WALLPAPER_START
 
 
 def run(clock: pg.time.Clock, display: pg.Surface):
 
     ## paul si tu passes par là, ne touches rien, t'inquiète, ça marche uwu
 
-    global walpaper
-    walpaper = pg.image.load(
-        "assets\start_assets\wallpaper.jpg"
-    )  # image has to be 1920/1080, it doesn't get resized
+    pg.mixer.music.play(-1)
 
     def show_happy_birthday(y: int, size: float):
         fun_font = pg.font.Font("assets\start_assets\\fun font.ttf", size)
@@ -34,7 +31,7 @@ def run(clock: pg.time.Clock, display: pg.Surface):
     running = True
     fade = sprite.ScreenFade()
     while running or fade.is_ascending():
-        display.blit(walpaper, (0, 0))
+        display.blit(WALLPAPER_START, (0, 0))
 
         show_happy_birthday(200, 50)
         show_press_key(900, 40)
