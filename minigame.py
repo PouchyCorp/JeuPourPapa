@@ -300,13 +300,13 @@ class Memory(GenericMinigame):
 
 
 class SlidingPuzzle(GenericMinigame):
-    def __init__(self, grid_size=(4, 4), image=None):
+    def __init__(self, grid_size=(4, 4), image: pg.Surface = None):
         super().__init__(name="SlidingPuzzle")
         self.grid_size = grid_size
-        self.image = image
         self.tiles = []
         self.empty_pos = (grid_size[0] - 1, grid_size[1] - 1)
         self.tile_size = (100, 100)
+        self.image = image
         self.shuffling = True
         self.setup_done = False
         self.moved_indexes = None
@@ -324,6 +324,14 @@ class SlidingPuzzle(GenericMinigame):
         )
         self.tile_size = (w, h)
         self.tiles = []
+        self.image = pg.transform.scale(
+            self.image,
+            (
+                self.grid_size[0] * self.tile_size[0],
+                self.grid_size[1] * self.tile_size[1],
+            ),
+        )
+
         img = self.image
         if img is None:
             img = pg.Surface((w * self.grid_size[0], h * self.grid_size[1]))
@@ -335,6 +343,7 @@ class SlidingPuzzle(GenericMinigame):
                     row.append(None)
                 else:
                     rect = pg.Rect(x * w, y * h, w, h)
+                    print(rect, img.get_size())
                     tile_img = img.subsurface(rect).copy()
                     row.append({"img": tile_img, "pos": (x, y), "correct": (x, y)})
             self.tiles.append(row)
