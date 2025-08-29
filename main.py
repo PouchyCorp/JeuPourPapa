@@ -1,9 +1,13 @@
+import math
+
+
 class Game:
     def __init__(self, display):
         pg.init()
         self.screen: pg.Surface = display
         pg.display.set_caption("TOP SECRET")
         self.clock = pg.time.Clock()
+        self.fade = sprite.ScreenFade()
 
         self.player = Player(400, 300)
         self.level = 0
@@ -90,17 +94,20 @@ class Game:
     def run(self):
         import start
         start.run(self.clock, self.screen)
+        self.fade.start(0.012, start=math.pi/2)  # Fade in at start
         while self.level < len(LEVELS) and self.running:
             self.finished_level = False
             self.init_level(self.level)
-            while not self.finished_level and self.running:
+            while not self.finished_level and self.running :
                 self.handle_events()
                 self.update()
                 self.draw()
                 self.clock.tick(60)
-
+            
             if self.finished_level:
                 self.animate_background_grow()
+
+            self.fade.start(0.012, start=math.pi/2)  # Fade out at end of level
 
             self.level += 1
         pg.quit()
@@ -130,6 +137,7 @@ class Game:
         if self.puzzle_manager.is_all_pieces_collected():
             self.finished_level = True
         self.starfield.update()
+        self.fade.update()
 
     def draw(self):
         # Draw black space background with stars
@@ -145,6 +153,8 @@ class Game:
         font = pg.font.SysFont("Arial", 30)
         fps_surf = font.render(f"FPS: {fps}", True, (255, 0, 255))
         self.screen.blit(fps_surf, (10, 10))
+
+        self.fade.draw(self.screen)
 
         pg.display.flip()
     
@@ -175,13 +185,21 @@ class Game:
             self.clock.tick(60)
         # Wait a few seconds
         start_time = time.time()
-        while time.time() - start_time < wait_seconds:
+        fade = sprite.ScreenFade()
+
+        while time.time() - start_time < wait_seconds or fade.is_ascending():
             self.screen.fill((0, 0, 0))
             self.starfield.update()
             self.starfield.draw(self.screen)
+            fade.update()
+            
             self.screen.blit(orig_bg, orig_bg.get_rect(center=(self.screen.get_rect().centerx, orig_bg.get_height() // 2)))
+            fade.draw(self.screen)
             pg.display.flip()
             self.clock.tick(60)
+
+            if time.time() - start_time >= wait_seconds and not fade.playing:
+                fade.start(0.012)
 
 
 
@@ -196,6 +214,7 @@ if __name__ == "__main__":
     from puzzlemanager import PuzzleManager
     from player import Player
     from levelconfig import LEVELS, LevelConfig
+    import sprite
     import time
 
     game = Game(display)

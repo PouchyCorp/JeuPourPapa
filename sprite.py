@@ -1,4 +1,5 @@
 from pygame import Surface, SRCALPHA, image, error, transform
+import math
 
 def load_image(path, scale = 1, size = None) -> Surface:
     try:
@@ -91,4 +92,36 @@ class Animation:
         if self.img_index == self.length-1 : #check if it's the last picture of the spritesheet
             return True
         
+class ScreenFade:
+    def __init__(self):
+        self.playing = False
+        self.incr = 0
+        self.alpha = 0
 
+    def draw(self, surface : Surface):
+        if not self.playing:
+            return
+        fade_surf = Surface(surface.get_size(), flags=SRCALPHA)
+        fade_surf.fill((0,0,0))
+        fade_surf.set_alpha(self.alpha)
+        surface.blit(fade_surf, (0,0))
+
+    def update(self):
+        if not self.playing:
+            return
+            
+        self.incr += self.speed * math.pi
+        if self.incr > self.stop:
+            self.incr = 0
+            self.playing = False
+        self.alpha = int(math.sin(self.incr) * 255)
+
+    def is_ascending(self):
+        return self.incr < math.pi/2
+
+    def start(self, speed: float, stop = math.pi, start = 0):
+        self.playing = True
+        self.alpha = 0
+        self.incr = start
+        self.speed = speed
+        self.stop = stop

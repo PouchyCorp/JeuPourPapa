@@ -150,6 +150,7 @@ class Memory(GenericMinigame):
         self.cards = []
         self.flipped = []
         self.matched = set()
+
         self.card_size = (110, 110)
         self.last_flip_time = None
         self.setup()
