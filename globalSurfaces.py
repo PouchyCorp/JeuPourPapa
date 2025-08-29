@@ -1,4 +1,5 @@
 import sprite
+import pygame as pg
 
 # this file is used to store global surfaces that are used in multiple files
 
@@ -21,3 +22,13 @@ PLAYER_SPRITESHEET = sprite.Spritesheet(
     (int(500 / 5), int(1080 / 5)),
 )
 PLAYER_ANIMATION = sprite.Animation(PLAYER_SPRITESHEET, 0, 4, speed=10, repeat=True)
+
+
+RED_BUTTON_SOUND = pg.mixer.Sound("assets/sound/red.wav")
+YELLOW_BUTTON_SOUND = pg.mixer.Sound("assets/sound/yellow.wav")
+BLUE_BUTTON_SOUND = pg.mixer.Sound("assets/sound/blue.wav")
+GREEN_BUTTON_SOUND = pg.mixer.Sound("assets/sound/green.wav")
+
+ACHIEVE_LEVEL_SOUND = pg.mixer.Sound("assets/sound/achieve_level.mp3")
+START_GAME_SOUND = pg.mixer.Sound("assets/sound/start_of_game_alt.mp3")
+ACHIEVE_PUZZLE_SOUND = pg.mixer.Sound("assets/sound/achieve_puzzle.wav")
