@@ -160,10 +160,10 @@ class Game:
         self.player.draw(self.screen)
 
         # show fps
-        fps = int(self.clock.get_fps())
+        """fps = int(self.clock.get_fps())
         font = pg.font.SysFont("Arial", 30)
         fps_surf = font.render(f"FPS: {fps}", True, (255, 0, 255))
-        self.screen.blit(fps_surf, (10, 10))
+        self.screen.blit(fps_surf, (10, 10))"""
 
         self.fade.draw(self.screen)
 
