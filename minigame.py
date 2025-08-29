@@ -154,6 +154,10 @@ class Memory(GenericMinigame):
         self.card_size = (110, 110)
         self.last_flip_time = None
         self.setup()
+        from globalSurfaces import BUTTON_PUSHED_SOUND, ERROR_MEMORY_SOUND
+
+        self.sound = BUTTON_PUSHED_SOUND
+        self.error_sound = ERROR_MEMORY_SOUND
 
     def setup(self):
         if not self.boundary:
@@ -164,7 +168,7 @@ class Memory(GenericMinigame):
         images = self.images * (num_cards // (2 * len(self.images)))
         images += random.sample(self.images, num_cards // 2 - len(images))
         images = images * 2
-        
+
         # Create pairs of image indices instead of duplicating images
         image_pairs = list(range(len(images) // 2)) * 2
         random.shuffle(image_pairs)
@@ -186,17 +190,21 @@ class Memory(GenericMinigame):
 
                 image_idx = image_pairs[idx]
                 original_image = images[image_idx]
-                resized_image = pg.transform.scale(original_image, (self.card_size[0] - 10, self.card_size[1] - 10))
+                resized_image = pg.transform.scale(
+                    original_image, (self.card_size[0] - 10, self.card_size[1] - 10)
+                )
 
-                self.cards.append({
-                    "rect": rect,
-                    "image": original_image,
-                    "resized": resized_image,
-                    "flipped": False,
-                    "matched": False,
-                    "index": idx,
-                    "pair_id": image_idx  # Add pair identifier for matching
-                })
+                self.cards.append(
+                    {
+                        "rect": rect,
+                        "image": original_image,
+                        "resized": resized_image,
+                        "flipped": False,
+                        "matched": False,
+                        "index": idx,
+                        "pair_id": image_idx,  # Add pair identifier for matching
+                    }
+                )
 
         print(f"Memory game setup with {len(self.cards)} cards.")
 
@@ -216,8 +224,11 @@ class Memory(GenericMinigame):
             if self.cards[idx1]["pair_id"] == self.cards[idx2]["pair_id"]:
                 self.cards[idx1]["matched"] = True
                 self.cards[idx2]["matched"] = True
+
                 self.matched.add(idx1)
                 self.matched.add(idx2)
+            else:
+                self.error_sound.play()
             self.cards[idx1]["flipped"] = False
             self.cards[idx2]["flipped"] = False
             self.flipped = []
@@ -251,7 +262,9 @@ class Memory(GenericMinigame):
             pg.draw.rect(surface, (255, 255, 255), card["rect"], 2)
             if card["flipped"] or card["matched"]:
                 if isinstance(card["resized"], pg.Surface):
-                    surface.blit(card["resized"], (card["rect"].x + 5, card["rect"].y + 5))
+                    surface.blit(
+                        card["resized"], (card["rect"].x + 5, card["rect"].y + 5)
+                    )
                 else:
                     img_font = pg.font.SysFont("Arial", 36)
                     img_surf = img_font.render(str(card["image"]), True, (0, 0, 0))
@@ -269,6 +282,8 @@ class Memory(GenericMinigame):
                     and self.last_flip_time is None
                 ):
                     card["flipped"] = True
+                    self.sound.play()
+
                     self.flipped.append(idx)
                     if len(self.flipped) > 2:
                         # Should not happen, but reset if it does
@@ -414,7 +429,7 @@ class SlidingPuzzle(GenericMinigame):
                     # Swap tile with empty
                     self.moved_indexes = ((gy, gx), (ey, ex))
                     self.moved_lerp_increment = 10
-                    
+
 
 class ColorButton:
     def __init__(self, center, radius, color, flash_color, index):
@@ -425,6 +440,24 @@ class ColorButton:
         self.index = index
         self.flashing = False
         self.flash_end_time = 0
+        from globalSurfaces import (
+            GREEN_BUTTON_SOUND,
+            RED_BUTTON_SOUND,
+            YELLOW_BUTTON_SOUND,
+            BLUE_BUTTON_SOUND,
+        )
+
+        COLOR_MAP = {  # je sais c'est moche mais du coup ça rend le code moins moche
+            (100, 20, 20): RED_BUTTON_SOUND,
+            (220, 40, 40): RED_BUTTON_SOUND,
+            (20, 100, 20): GREEN_BUTTON_SOUND,
+            (40, 220, 40): GREEN_BUTTON_SOUND,
+            (20, 20, 100): BLUE_BUTTON_SOUND,
+            (40, 40, 220): BLUE_BUTTON_SOUND,
+            (100, 100, 20): YELLOW_BUTTON_SOUND,
+            (220, 220, 40): YELLOW_BUTTON_SOUND,
+        }
+        self.sound_at_flash = COLOR_MAP[self.color]
 
     def draw(self, surface):
         draw_color = self.flash_color if self.flashing else self.color
@@ -433,11 +466,17 @@ class ColorButton:
 
     def handle_event(self, event):
         if event.type == pg.USEREVENT + 0 and not self.flashing:
-            if (pg.Vector2(event.pos) - pg.Vector2(self.center)).length() <= self.radius:
+            if (
+                pg.Vector2(event.pos) - pg.Vector2(self.center)
+            ).length() <= self.radius:
+
                 return True
+
         return False
 
     def flash(self, duration=0.4):
+        self.sound_at_flash.play()
+
         self.flashing = True
         self.flash_end_time = time() + duration
 
@@ -445,11 +484,12 @@ class ColorButton:
         if self.flashing and time() >= self.flash_end_time:
             self.flashing = False
 
+
 class ColorSequenceMemory(GenericMinigame):
     COLORS = [
-        ((100, 20, 20), (220, 40, 40)),   # Red
-        ((20, 100, 20), (40, 220, 40)),   # Green
-        ((20, 20, 100), (40, 40, 220)),   # Blue
+        ((100, 20, 20), (220, 40, 40)),  # Red
+        ((20, 100, 20), (40, 220, 40)),  # Green
+        ((20, 20, 100), (40, 40, 220)),  # Blue
         ((100, 100, 20), (220, 220, 40)),  # Yellow
     ]
 
@@ -488,7 +528,12 @@ class ColorSequenceMemory(GenericMinigame):
 
         button_width = BUTTON_UP.get_width()
         button_height = BUTTON_UP.get_height()
-        rect = pg.Rect(cx - button_width // 2, self.boundary.bottom - 120, button_width, button_height)
+        rect = pg.Rect(
+            cx - button_width // 2,
+            self.boundary.bottom - 120,
+            button_width,
+            button_height,
+        )
         self.start_button = Button(rect, "Commencer", (255, 255, 255))
         self.state = "waiting"
         self.sequence = []
@@ -542,19 +587,21 @@ class ColorSequenceMemory(GenericMinigame):
         if self.message:
             msg_font = pg.font.SysFont("Arial", 32)
             msg_surf = msg_font.render(self.message, True, (255, 255, 255))
-            msg_rect = msg_surf.get_rect(center=(self.boundary.centerx, self.boundary.centery))
+            msg_rect = msg_surf.get_rect(
+                center=(self.boundary.centerx, self.boundary.centery)
+            )
             surface.blit(msg_surf, msg_rect)
 
     def handle_event(self, event: pg.event.Event):
         if self.completed:
             return
-        if self.state == "waiting" and self.start_button: # waiting to start
+        if self.state == "waiting" and self.start_button:  # waiting to start
             self.start_button.handle_event(event)
-            if self.start_button.state == 'DOWN':
+            if self.start_button.state == "DOWN":
                 self.start_sequence()
                 self.start_button.reset()
-                
-        elif self.state == "input": # user input phase
+
+        elif self.state == "input":  # user input phase
             for btn in self.buttons:
                 if btn.handle_event(event):
                     btn.flash()
