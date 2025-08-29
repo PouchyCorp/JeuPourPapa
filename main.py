@@ -30,7 +30,7 @@ class Game:
     def init_level(self, level_ind: int):
         self.original_background = LEVELS[level_ind].background
         self.background = self.original_background.subsurface(
-            (max(0, self.original_background.get_rect().centerx - 550), 0, 1100, 1100)
+            (max(0, self.original_background.get_rect().centerx - 550), 0, min(1100, self.original_background.get_rect().width), min(1100, self.original_background.get_rect().height))
         )
         side_without_bitoniau = 550
         bitoniau = 88
@@ -184,10 +184,8 @@ class Game:
             )
 
             # Scale and blit
-            scaled_bg = pg.transform.smoothscale(orig_bg, (new_width, new_height))
-            rect = scaled_bg.get_rect(
-                center=(self.screen.get_rect().centerx, scaled_bg.get_height() // 2)
-            )
+            scaled_bg = orig_bg.subsurface((max(0, orig_rect.centerx - new_width // 2), 0), (new_width, new_height))
+            rect = scaled_bg.get_rect(center=(self.screen.get_rect().centerx, scaled_bg.get_height() // 2))
             self.screen.fill((0, 0, 0))
             self.starfield.update()
             self.starfield.draw(self.screen)
