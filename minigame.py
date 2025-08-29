@@ -343,7 +343,7 @@ class SlidingPuzzle(GenericMinigame):
                     row.append(None)
                 else:
                     rect = pg.Rect(x * w, y * h, w, h)
-                    print(rect, img.get_size())
+
                     tile_img = img.subsurface(rect).copy()
                     row.append({"img": tile_img, "pos": (x, y), "correct": (x, y)})
             self.tiles.append(row)
