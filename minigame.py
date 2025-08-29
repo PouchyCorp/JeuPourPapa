@@ -150,14 +150,18 @@ class Memory(GenericMinigame):
         self.cards = []
         self.flipped = []
         self.matched = set()
-
         self.card_size = (110, 110)
         self.last_flip_time = None
         self.setup()
-        from globalSurfaces import BUTTON_PUSHED_SOUND, ERROR_MEMORY_SOUND
+        from globalSurfaces import (
+            BUTTON_PUSHED_SOUND,
+            WIN_MEMORY_SOUND,
+            ERROR_MEMORY_SOUND,
+        )
 
         self.sound = BUTTON_PUSHED_SOUND
         self.error_sound = ERROR_MEMORY_SOUND
+        self.win_sound = WIN_MEMORY_SOUND
 
     def setup(self):
         if not self.boundary:
@@ -227,8 +231,10 @@ class Memory(GenericMinigame):
 
                 self.matched.add(idx1)
                 self.matched.add(idx2)
+                self.win_sound.play()
             else:
                 self.error_sound.play()
+
             self.cards[idx1]["flipped"] = False
             self.cards[idx2]["flipped"] = False
             self.flipped = []
@@ -304,6 +310,10 @@ class SlidingPuzzle(GenericMinigame):
         self.shuffling = True
         self.setup_done = False
         self.moved_indexes = None
+
+        from globalSurfaces import BUTTON_PUSHED_SOUND
+
+        self.sound = BUTTON_PUSHED_SOUND
 
     def setup(self):
         if not self.boundary:
@@ -417,17 +427,19 @@ class SlidingPuzzle(GenericMinigame):
         if self.completed:
             return
         if event.type == pg.USEREVENT + 0 and not self.moved_indexes:
+
             mx, my = event.pos
-            w, h = self.tile_size
-            gx = (mx - self.boundary.left) // w  # Grid x
-            gy = (my - self.boundary.top) // h  # Grid y
-            if 0 <= gx < self.grid_size[0] and 0 <= gy < self.grid_size[1]:
-                ex, ey = self.empty_pos
-                if (abs(gx - ex) == 1 and gy == ey) or (
-                    abs(gy - ey) == 1 and gx == ex
+            width, height = self.tile_size
+            grid_x = (mx - self.boundary.left) // width  # Grid x
+            grid_y = (my - self.boundary.top) // height  # Grid y
+            if 0 <= grid_x < self.grid_size[0] and 0 <= grid_y < self.grid_size[1]:
+                empty_x, empty_y = self.empty_pos
+                if (abs(grid_x - empty_x) == 1 and grid_y == empty_y) or (
+                    abs(grid_y - empty_y) == 1 and grid_x == empty_x
                 ):  # Check if adjacent
                     # Swap tile with empty
-                    self.moved_indexes = ((gy, gx), (ey, ex))
+                    self.sound.play()
+                    self.moved_indexes = ((grid_y, grid_x), (empty_y, empty_x))
                     self.moved_lerp_increment = 10
 
 

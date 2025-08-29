@@ -16,6 +16,10 @@ class Game:
         self.secret_activated = False
         self.secret_timer = 0
 
+        from globalSurfaces import ACHIEVE_LEVEL_SOUND
+
+        self.ACHIEVE_LEVEL_SOUND = ACHIEVE_LEVEL_SOUND
+
         # Initialize starfield background
         from starfield import Starfield
 
@@ -93,21 +97,23 @@ class Game:
 
     def run(self):
         import start
+
         start.run(self.clock, self.screen)
-        self.fade.start(0.012, start=math.pi/2)  # Fade in at start
+        self.fade.start(0.012, start=math.pi / 2)  # Fade in at start
         while self.level < len(LEVELS) and self.running:
             self.finished_level = False
             self.init_level(self.level)
-            while not self.finished_level and self.running :
+            while not self.finished_level and self.running:
                 self.handle_events()
                 self.update()
                 self.draw()
                 self.clock.tick(60)
-            
+
             if self.finished_level:
+                self.ACHIEVE_LEVEL_SOUND.play()
                 self.animate_background_grow()
 
-            self.fade.start(0.012, start=math.pi/2)  # Fade out at end of level
+            self.fade.start(0.012, start=math.pi / 2)  # Fade out at end of level
 
             self.level += 1
         pg.quit()
@@ -118,7 +124,7 @@ class Game:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 self.running = False
-            
+
             # Enhanced secret keybind to complete level: Ctrl+Shift+C
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_c:
@@ -157,7 +163,7 @@ class Game:
         self.fade.draw(self.screen)
 
         pg.display.flip()
-    
+
     def animate_background_grow(self):
         grow_steps = 30
         wait_seconds = 2
@@ -170,12 +176,18 @@ class Game:
             lerp = step / grow_steps
 
             # Interpolate rect
-            new_width = int(start_rect.width + (target_rect.width - start_rect.width) * lerp)
-            new_height = int(start_rect.height + (target_rect.height - start_rect.height) * lerp)
+            new_width = int(
+                start_rect.width + (target_rect.width - start_rect.width) * lerp
+            )
+            new_height = int(
+                start_rect.height + (target_rect.height - start_rect.height) * lerp
+            )
 
             # Scale and blit
             scaled_bg = pg.transform.smoothscale(orig_bg, (new_width, new_height))
-            rect = scaled_bg.get_rect(center=(self.screen.get_rect().centerx, scaled_bg.get_height() // 2))
+            rect = scaled_bg.get_rect(
+                center=(self.screen.get_rect().centerx, scaled_bg.get_height() // 2)
+            )
             self.screen.fill((0, 0, 0))
             self.starfield.update()
             self.starfield.draw(self.screen)
@@ -192,15 +204,19 @@ class Game:
             self.starfield.update()
             self.starfield.draw(self.screen)
             fade.update()
-            
-            self.screen.blit(orig_bg, orig_bg.get_rect(center=(self.screen.get_rect().centerx, orig_bg.get_height() // 2)))
+
+            self.screen.blit(
+                orig_bg,
+                orig_bg.get_rect(
+                    center=(self.screen.get_rect().centerx, orig_bg.get_height() // 2)
+                ),
+            )
             fade.draw(self.screen)
             pg.display.flip()
             self.clock.tick(60)
 
             if time.time() - start_time >= wait_seconds and not fade.playing:
                 fade.start(0.012)
-
 
 
 if __name__ == "__main__":
