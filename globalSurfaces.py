@@ -5,9 +5,9 @@ import pygame as pg
 
 
 LEVELS_SPRITES = [
-    sprite.load_image("assets/photos/4.png", size=(1100, 1100)),
-    sprite.load_image("assets/photos/2.png", size=(1100, 1100)),
-    sprite.load_image("assets/photos/2017.png", size=(1100, 1100))
+    sprite.load_image("assets/photos/4.png"),
+    sprite.load_image("assets/photos/2.png"),
+    sprite.load_image("assets/photos/2017.jpg")
 ]
 
 PUZZLE_PIECE = sprite.load_image("assets/images/puzzlepiece.png", 1.1)
