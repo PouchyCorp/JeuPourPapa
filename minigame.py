@@ -74,7 +74,7 @@ class Quiz(GenericMinigame):
         num_answers = len(self.possible_answers)
         button_width = BUTTON_UP.get_width()
         button_height = BUTTON_UP.get_height()
-        spacing = 40
+        spacing = 60
 
         total_width = num_answers * button_width + (num_answers - 1) * spacing
         start_x = self.boundary.centerx - total_width // 2
@@ -84,7 +84,7 @@ class Quiz(GenericMinigame):
             rect = pg.Rect(
                 start_x + i * (button_width + spacing), y, button_width, button_height
             )
-            button = Button(rect, answer, (255, 255, 255), 36)
+            button = Button(rect, answer, (255, 255, 255), 30)
             self.buttons.append(button)
 
     def update(self):

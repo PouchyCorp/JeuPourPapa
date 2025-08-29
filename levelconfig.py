@@ -21,17 +21,17 @@ LEVEL_1 = LevelConfig(
             caption_image=gs.RASINARI_PHOTO,
             question="Où a été prise cette photo ?",
         ),
-        minigame.ColorSequenceMemory(5),
+        minigame.ColorSequenceMemory(7),
     ],
     background=gs.LEVELS_SPRITES[0],
 )
 
 LEVEL_2 = LevelConfig(
     minigames=[
-        minigame.ColorSequenceMemory(8),
-        minigame.Quiz("Ouais <3", ["Ouais <3", "Trop ringard ..."], gs.PAPA_PERRUQUE, question="Est-il bien sapé ?"), # papa perruque
-        minigame.Quiz("Louis", ["Louis", "Paul", "Philippe"], gs.LOUIS_PHOTO, question="Qui est-ce ?"),
-        minigame.Quiz("Answer 13", ["Answer 13", "Answer 14"]),
+        minigame.ColorSequenceMemory(12),
+        minigame.Quiz("Ouais <3", ["Ouais <3", "Trop ringard ..."], "Est-il bien sapé ?", gs.PAPA_PERRUQUE), # papa perruque
+        minigame.Quiz("Louis", ["Paul", "Philippe", "Louis"], "Qui est-ce ?", gs.LOUIS_PHOTO),
+        minigame.Quiz("Beaufort", ["Emmental", "Beaufort", "Gruyère"], "Quel est ce fromage ?", gs.CHEESE_PHOTO),
     ],
     background=gs.LEVELS_SPRITES[1],
 )
@@ -44,7 +44,7 @@ LEVEL_3 = LevelConfig(
             caption_image=gs.PHOTO_OF_2011,
             question="Quand a été prise cette photo ?",
         ),
-        minigame.ColorSequenceMemory(13),
+        minigame.ColorSequenceMemory(15),
         minigame.Quiz(
             "Louane", ["Louane", "Isabelle"], question="Qui n'aime pas les poireaux?"
         ),
