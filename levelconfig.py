@@ -11,22 +11,32 @@ class LevelConfig:
 # level 1
 LEVEL_1 = LevelConfig(
     minigames = [
-        minigame.Quiz("Answer 1", ["Answer 1", "Answer 2"], caption_image=gs.PUZZLE_PIECE),
+        minigame.Quiz("Choup !", ["Choup !", "Kipik."], question="Choupchoup ?"),
         minigame.Memory((4, 4), gs.MEMORY_CARDS_1),
-        minigame.SlidingPuzzle((3, 3), gs.LEVELS_SPRITES[0]),
+        minigame.Quiz("Answer 3", ["Answer 3", "Answer 4"]),
         minigame.ColorSequenceMemory(5)
-    ]
-    , background = gs.LEVELS_SPRITES[0]
+    ],
+    background=gs.LEVELS_SPRITES[0]
 )
 
 LEVEL_2 = LevelConfig(
     minigames = [
+        minigame.ColorSequenceMemory(8),
         minigame.Quiz("Answer 9", ["Answer 9", "Answer 10"]),
         minigame.Quiz("Answer 11", ["Answer 11", "Answer 12"]),
-        minigame.Quiz("Answer 13", ["Answer 13", "Answer 14"]),
-        minigame.Quiz("Answer 15", ["Answer 15", "Answer 16"])
-    ]
-    , background = gs.LEVELS_SPRITES[0]
+        minigame.Quiz("Answer 13", ["Answer 13", "Answer 14"])
+    ],
+    background=gs.LEVELS_SPRITES[1]
 )
 
-LEVELS = [LEVEL_1, LEVEL_2]
+LEVEL_3 = LevelConfig(
+    minigames=[
+        minigame.Quiz("Answer 9", ["Answer 9", "Answer 10"]),
+        minigame.ColorSequenceMemory(13),
+        minigame.Quiz("Answer 11", ["Answer 11", "Answer 12"]),
+        minigame.SlidingPuzzle((3, 3), gs.LEVELS_SPRITES[0])
+    ],
+    background=gs.LEVELS_SPRITES[2]
+)
+
+LEVELS = [LEVEL_1, LEVEL_2, LEVEL_3]
