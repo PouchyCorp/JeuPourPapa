@@ -17,8 +17,10 @@ BUTTON_DOWN = sprite.load_image("assets/images/buttonDown.png", 0.5)
 MEMORY_CARDS_1 = [
     sprite.load_image(f"assets/mem images/mem{i}.jpg", 0.3) for i in range(1, 9)
 ]
+
 RASINARI_PHOTO = sprite.load_image("assets/photos/rasinari.JPG")
 PHOTO_OF_2011 = sprite.load_image("assets/photos/2011.JPG")
+HISOITRE_PHOTO = sprite.load_image("assets/photos/histoire.jpg")
 
 PLAYER_SPRITESHEET = sprite.Spritesheet(
     sprite.load_image("assets/images/spritesheetMC.png", 0.2),

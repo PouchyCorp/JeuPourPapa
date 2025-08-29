@@ -29,8 +29,18 @@ LEVEL_1 = LevelConfig(
 LEVEL_2 = LevelConfig(
     minigames=[
         minigame.ColorSequenceMemory(8),
-        minigame.Quiz("Ouais <3", ["Ouais <3", "Trop ringard ..."], gs.PAPA_PERRUQUE, question="Est-il bien sapé ?"), # papa perruque
-        minigame.Quiz("Louis", ["Louis", "Paul", "Philippe"], gs.LOUIS_PHOTO, question="Qui est-ce ?"),
+        minigame.Quiz(
+            "Ouais <3",
+            ["Ouais <3", "Trop ringard ..."],
+            gs.PAPA_PERRUQUE,
+            question="Est-il bien sapé ?",
+        ),  # papa perruque
+        minigame.Quiz(
+            "Louis",
+            ["Louis", "Paul", "Philippe"],
+            gs.LOUIS_PHOTO,
+            question="Qui est-ce ?",
+        ),
         minigame.Quiz("Answer 13", ["Answer 13", "Answer 14"]),
     ],
     background=gs.LEVELS_SPRITES[1],
@@ -46,7 +56,10 @@ LEVEL_3 = LevelConfig(
         ),
         minigame.ColorSequenceMemory(13),
         minigame.Quiz(
-            "Louane", ["Louane", "Isabelle"], question="Qui n'aime pas les poireaux?"
+            "Mariux",
+            ["Marius", "Mark", "Sam"],
+            question="Le bus de ..?",
+            caption_image=gs.HISOITRE_PHOTO,
         ),
         minigame.SlidingPuzzle((3, 3), gs.LEVELS_SPRITES[0]),
     ],
